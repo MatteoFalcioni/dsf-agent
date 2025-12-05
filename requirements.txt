@@ -1,3 +1,7 @@
 dsf-mobility
-langchain
+langchain>=1.0.0
 langgraph
+langchain-openai
+langchain-anthropic
+
+dotenv
