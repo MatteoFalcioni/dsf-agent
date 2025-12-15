@@ -2,3 +2,6 @@
 cache/
 input/
 slow_charge.py
+*.csv
+*.geojson
+*pycache*

@@ -6,8 +6,10 @@ from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
 from typing import Literal
 
-from tools.slow_charge_tool import simulate_slow_charge
-from prompts import prompt
+from .tools.slow_charge_tool import simulate_slow_charge
+from .prompts.prompt import prompt
+
+from datetime import datetime
 
 load_dotenv()
 
@@ -39,7 +41,7 @@ def make_graph(
         Node that simply invokes the agent
         """
         result = await agent.ainvoke(state)
-        last_msg_content = result['messages'].content
+        last_msg_content = result['messages'][-1].content
 
         return Command(
             update={"messages": [HumanMessage(content=last_msg_content)]}
@@ -55,7 +57,6 @@ def make_graph(
     if plot_graph == True:
         img_bytes = graph.get_graph().draw_mermaid_png()
         from pathlib import Path
-        import datetime
         output_dir = Path("graph_plot")
         output_dir.mkdir(exist_ok=True)
         # Generate filename with timestamp

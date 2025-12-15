@@ -1,13 +1,11 @@
-import logging
 import pathlib
 import shutil
-from tqdm.rich import trange
-from dsf import mobility
-
+from dsf import mobility, set_log_level, LogLevel
 from langchain.tools import tool, ToolRuntime
 from langgraph.types import Command
 from langchain_core.messages import ToolMessage
 from typing import Annotated
+from tqdm.rich import trange
 
 """
 Implementing the slow charge simulation logic in a langchain tool.
@@ -23,19 +21,22 @@ def simulate_slow_charge(
     Simulates the slow charge of the network for a given time interval and number of agents.
 
     Args:
-        dt_agent: Time interval for agent spawning
-        duration: Duration of the simulation, in seconds
+        dt_agent: Time interval for agent spawning. Default is 10 seconds.
+        duration: Duration of the simulation, in seconds. Default is 24 hours.
 
     Returns:
         The path to the output directory containing the simulation results.
     """
 
+    set_log_level(LogLevel.ERROR)
+
     OUT_FOLDER = "output_slow_charge"
-    EDGES_FILE = "bologna_edges.geojson"  # NOTE: adjust path to agent
+    EDGES_FILE = "bologna_edges.geojson"  
+    NODES_FILE = "bologna_nodes.csv"
 
     rn = mobility.RoadNetwork()
     rn.importEdges(f"./input/{EDGES_FILE}")
-    rn.importNodeProperties("./input/bologna_nodes.csv")
+    # rn.importNodeProperties(f"./input/{NODES_FILE}")  not working idk why 
 
     # Clear output directory
     output_dir = pathlib.Path(f"./{OUT_FOLDER}")
