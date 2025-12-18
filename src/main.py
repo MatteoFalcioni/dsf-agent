@@ -38,7 +38,11 @@ async def main():
             break
         
         # Create state with user message
-        init_state = {"messages": [HumanMessage(content=user_input)], "edges_filepath" : "./input/bologna_edges.csv"}
+        init_state = {
+            "messages": [HumanMessage(content=user_input)], 
+            "edges_filepath" : "./input/bologna_edges.csv", 
+            "nodes_filepath" : "./input/bologna_nodes.csv"
+            }
         
         # Stream agent response
         async for chunk in graph.astream(init_state, config=config):

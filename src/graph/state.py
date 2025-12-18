@@ -4,4 +4,5 @@ class SimulationState(AgentState):
     """
     State for the simulation agent.
     """
-    edges_filepath: str  # path to the edges file (no reducer because str_replace is fine)
+    edges_filepath: str  # path to the edges file
+    nodes_filepath: str  # path to the nodes file

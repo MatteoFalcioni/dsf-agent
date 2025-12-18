@@ -60,6 +60,7 @@ def run_simulation(
     duration : Annotated[int, "Duration of the simulation, in seconds"] = 24 * 60 * 60,
     day : Annotated[str, "The day of the simulation in the format YYYY-MM-DD"] = '2022-01-31',
     start_hour: Annotated[int, "The hour of the day to start the simulation at, as an integer between 0 and 23"] = 0,
+    # start_minute: Annotated[int, "The minute of the hour to start the simulation at, as an integer between 0 and 59"] = 0,  array is hourly computed so no need for minutes now
 )-> Command:
     """
     Use this tool to run the mobility simulation. 
@@ -69,7 +70,6 @@ def run_simulation(
         duration: Duration of the simulation, in seconds
         day: The day of the simulation in the format YYYY-MM-DD
         start_hour: The hour of the day to start the simulation at, as an integer between 0 and 23
-
     Returns:
         A message indicating that the simulation has been run.
         The path to the output directory containing the simulation results.
@@ -80,7 +80,6 @@ def run_simulation(
     set_log_level(LogLevel.ERROR)
 
     SCALE = 25  # hardcoded 
-
     NORM_WEIGHTS = False
     SMOOTHING_HOURS = 3  # Number of hours to average over (odd number recommended)
 
@@ -100,13 +99,11 @@ def run_simulation(
 
     rn = mobility.RoadNetwork()
     rn.importEdges(edges_filepath)
-    rn.importNodeProperties("./input/node_props.csv", separator=",")
+    # rn.importNodeProperties("./input/node_props.csv") # not needed for now
     rn.makeRoundabout(72)
 
     print(f"Bologna's road network has {rn.nNodes()} nodes and {rn.nEdges()} edges.")
-    print(
-        f"There are {rn.nCoils()} magnetic coils, {rn.nTrafficLights()} traffic lights and {rn.nRoundabouts()} roundabouts"
-    )
+    print(f"There are {rn.nCoils()} magnetic coils, {rn.nTrafficLights()} traffic lights and {rn.nRoundabouts()} roundabouts")
 
     # Clear output directory
     output_dir = pathlib.Path("./output")
@@ -125,11 +122,11 @@ def run_simulation(
     simulator.killStagnantAgents(10.0)
 
     # Get the epoch time for the actual day of the simulation
-    epoch_time = get_epoch_time(day, start_hour)
+    epoch_time = get_epoch_time(day, start_hour) # start minute
     simulator.setInitTime(epoch_time)
 
     # NOTE: simulate from start_hour until start_hour + duration 
-    for i in trange(0, duration + 1, desc="Simulating flows"):
+    for i in trange(start_hour * 3600, duration + 1, desc="Simulating flows"):
         if i % 3600 == 0 and i // 3600 < len(origin_nodes):
             # do a mean over the weights for SMOOTHING_HOURS hours (centered on current hour)
             origins = origin_nodes[
